@@ -92,7 +92,7 @@ The server acts as a bridge between Claude and the Umami API, implementing sever
   Once you have provided this information, the server will generate a txt file instructing Claude how to build the dashboard.
   Press enter in the chat window and Claude will do the rest. You can then ask Claude to make any changes to the dashboard or add any other visualisations.
 
-  ![alt text](docs/videos/dashboard_prompt_demo.mp4)
+  ![alt text](docs/videos/dashboard_prompt_demo.gif)
 
   ## Advanced Usage
 
