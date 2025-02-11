@@ -1,4 +1,4 @@
-# analytics_service MCP Server
+# Umami Analytics MCP Server
 
 A Model Context Protocol (MCP) server that enhances Claude's capabilities by providing access to website analytics data from Umami. This server allows Claude to analyze user behavior, track website performance, and provide data-driven insights.
 
