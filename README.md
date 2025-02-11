@@ -103,7 +103,7 @@ Each tool has a description and a list of arguments that can be passed to it. Th
 
   The neccesary tools to complete your request will be used by claude automatically, simply make your request in natural language and claude will decide which tools to use. If you want to see a list of all the tools available, you can ask claude to list them for you or click on the hammer icon in the bottom right of the chat window.
   
-  ![alt text](docs/videos/user_journey.gif)
+  ![alt text](docs/videos/natural_language.gif)
   
   ### Create your own prompts
 
