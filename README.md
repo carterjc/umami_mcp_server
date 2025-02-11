@@ -17,18 +17,21 @@ This server connects Claude to your Umami analytics platform, enabling it to:
 
 ## How It Works
 
-The server acts as a bridge between Claude and the Umami API, implementing several specialized tools:
+The server provides the following tools to Claude to analyze website data:
 
-### Analytics Tools
-- **Website Statistics**: Get overall metrics like pageviews, unique visitors, and bounce rates
-- **User Journey Analysis**: Track individual user sessions and their interactions
-- **Real-time Monitoring**: Monitor active visitors and current website activity
-- **Time-series Analysis**: Analyze pageview trends over customizable time periods
+### Available Tools
+- **get_websites**: Retrieve a list of websites and their IDs in your Umami account
+- **get_website_stats**: Get key metrics like pageviews, visitors, bounce rate for a website
+- **get_website_metrics**: Analyze specific metrics like URLs, referrers, browsers, countries
+- **get_pageview_series**: Get time-series pageview data with customizable intervals
+- **get_active_visitors**: Monitor current number of active visitors on a website
+- **get_session_ids**: Retrieve session IDs for specific events or time periods
+- **get_user_activity**: Get detailed activity data for a specific user session
+- **get_tracking_data**: Get raw tracking data for analysis
+- **get_screenshot**: Capture visual snapshots of webpages
+- **get_html**: Retrieve and analyze webpage HTML source code
 
-### Content Analysis Tools
-- **Screenshot Capture**: Get visual snapshots of webpages
-- **HTML Analysis**: Access and analyze webpage source code
-- **Document Processing**: Process and analyze user journey data for insights using retrieval-augmented generation (RAG)
+Each tool has a description and a list of arguments that can be passed to it. These are used to provide context and information to allow Claude to effectively select the right tool/s for the job, and provide the correct paremeters.
 
 ## Setup Guide
 
@@ -77,12 +80,12 @@ The server acts as a bridge between Claude and the Umami API, implementing sever
 
   ![alt text](docs/images/feature_preview.png)
 
-3. **Using the Server**
-  ## Getting Started
+  ## How to Use the Server
+  ### Getting Started
 
-  The simplest way to start is to use the Create Dashboard Prompt provided by the server. This is selected by clicking the "Attach from MCP" attachment button at the bottom left of the chat window. Then selecting chose implementation and then the Create Dashboard Prompt.
+  The simplest way to start is to use the **Create Dashboard Prompt** provided by the server. This is selected by clicking the "Attach from MCP" attachment button at the bottom left of the chat window. Then selecting choose implementation and then the Create Dashboard Prompt.
 
-  ![alt text](docs/images/create_dashboard.png)
+  ![alt text](docs/videos/prompt_select.gif)
 
   This will guide you through the process of creating a dashboard for your website, asking for:
   1. The name of the website you want to analyze
@@ -94,12 +97,142 @@ The server acts as a bridge between Claude and the Umami API, implementing sever
 
   ![alt text](docs/videos/dashboard_prompt_demo.gif)
 
-  ## Advanced Usage
+  ### Natural Language Usage
 
   For a more customisable experience, you can talk directly to Claude and specify your own requirements such as what data you want to see on the dashboard and what visualisations you want to use. Additionally you can analyse user journeys to pinpoint specific pain points and add screenshots from your site to give Claude extra context
 
-  All of these tools will be used by claude automatically, simply make your request as plain text and claude will use what it thinks is the appropriate tool. If you want to see a list of all the tools available, you can ask claude to list them for you or click on the hammer icon in the bottom right of the chat window.
+  The neccesary tools to complete your request will be used by claude automatically, simply make your request in natural language and claude will decide which tools to use. If you want to see a list of all the tools available, you can ask claude to list them for you or click on the hammer icon in the bottom right of the chat window.
   
+  ![alt text](docs/videos/user_journey.gif)
   
-  
+  ### Create your own prompts
+
+  You can also create your own prompts for workflows that you use regularly. To do this, you will need to:
+
+1. **Define Your Prompt Structure**
+   Create a prompt definition that includes:
+   - `name`: A unique identifier for your prompt
+   - `description`: A clear explanation of what the prompt does
+   - `arguments`: List of input parameters your prompt needs
+
+   Add this to the `list_prompts()` function in `src/analytics_service/server.py`:
+   
+   Example structure:
+   ```python
+   @app.list_prompts()
+   async def list_prompts():
+       return [
+           # ... existing prompts ...
+           {
+               "name": "Your Prompt Name",
+               "description": "Your prompt description",
+               "arguments": [
+                   {
+                       "name": "Parameter Name 1",
+                       "description": "Parameter description",
+                       "required": True/False
+                   },
+                   {
+                       "name": "Parameter Name 2",
+                       "description": "Parameter description",
+                       "required": True/False
+                   }
+               ]
+           }
+       ]
+   ```
+
+2. **Implement the Prompt**
+   Add your prompt handling logic in the `get_prompt()` function in `src/analytics_service/server.py`:
+   ```python
+   @app.get_prompt()
+   async def get_prompt(name: str, arguments: Any):
+    # ... existing prompts ...
+       if name == "Your Prompt Name":
+           return {
+               "messages": [
+                   {
+                       "role": "user",
+                       "content": {
+                           "type": "text",
+                           "text": f"Your prompt template with {arguments['Parameter Name']}"
+                       }
+                   }
+               ]
+           }
+   ```
+
+   When defining messages in your prompt, the `role` field is crucial for structuring the conversation:
+   - Use `"role": "user"` for messages that simulate user input or questions
+   - Use `"role": "assistant"` for messages that represent Claude's responses or instructions
+   - Use `"role": "system"` for messages that set context or provide high-level instructions
+   
+   The `content` field in each message must specify a `type`. Available types are:
+   - `"type": "text"` - For plain text content
+   - `"type": "resource"` - For including external resources like files, logs, or other data. Must include a `resource` object with:
+     - `uri`: The resource identifier
+     - `text`: The actual content
+     - `mimeType`: The MIME type of the content (e.g., "text/plain", "text/x-python")
+
+   While resources do include their content in the `text` field, using the `resource` type provides several important benefits:
+   1. **Content Type Awareness**: The `mimeType` field tells Claude how to interpret the content (e.g., as Python code, plain text, or other formats)
+   2. **Source Tracking**: The `uri` field maintains a reference to where the content came from, which can be useful for:
+      - Tracking the origin of data
+      - Enabling updates if the source changes
+      - Providing context about the resource's location and purpose
+   3. **Structured Data Handling**: The resource format allows for consistent handling of different types of content while maintaining metadata about each resource
+
+   Here's an example showing different roles and content types:
+   ```python
+   "messages": [
+       {
+           "role": "system",
+           "content": {
+               "type": "text",
+               "text": "Analyze the following log file and code for potential issues."
+           }
+       },
+       {
+           "role": "user",
+           "content": {
+               "type": "resource",
+               "resource": {
+                   "uri": "logs://recent",
+                   "text": "[2024-03-14 15:32:11] ERROR: Connection timeout",
+                   "mimeType": "text/plain"
+               }
+           }
+       },
+       {
+           "role": "assistant",
+           "content": {
+               "type": "text",
+               "text": "I notice a connection timeout error. Let me examine the related code."
+           }
+       },
+       {
+           "role": "user",
+           "content": {
+               "type": "resource",
+               "resource": {
+                   "uri": "file:///code.py",
+                   "text": "def example():\n    pass",
+                   "mimeType": "text/x-python"
+               }
+           }
+       }
+   ]
+   ```
+
+   For most prompts, the text type with user role is more than sufficient and allows Claude more control and creativity in its responses. For more complex workflows however, multiple messages with different roles and types allow for a more structured conversation flow and more user control over the response.
+
+3. **Best Practices for Creating Prompts**
+   - Make your prompts focused and specific
+   - Include clear validation requirements for arguments
+   - Use descriptive names for parameters
+   - Include example values in parameter descriptions
+   - Structure the prompt template to guide Claude effectively
+   - Consider error handling and edge cases
+   - Test the prompt with various inputs
+
   
