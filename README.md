@@ -44,7 +44,6 @@ Additoanlly, the get_screenshot and get_html tools use the open source [Crawl4AI
 ### Prerequisites
 
 - install uv: `pip install uv`
-- install playwrite to use screenshot: `playwrite install`
 
 1. **Claude Desktop Configuration**
    
