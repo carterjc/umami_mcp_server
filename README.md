@@ -26,12 +26,16 @@ The server provides the following tools to Claude to analyze website data:
 - **get_pageview_series**: Get time-series pageview data with customizable intervals
 - **get_active_visitors**: Monitor current number of active visitors on a website
 - **get_session_ids**: Retrieve session IDs for specific events or time periods
-- **get_user_activity**: Get detailed activity data for a specific user session
-- **get_tracking_data**: Get raw tracking data for analysis
+- **get_tracking_data**: Get detailed activity data for a specific session ID
+- **get_docs**: Perform semantic search on many user journeys, returning the most relevant chunks for a given question
 - **get_screenshot**: Capture visual snapshots of webpages
 - **get_html**: Retrieve and analyze webpage HTML source code
 
 Each tool has a description and a list of arguments that can be passed to it. These are used to provide context and information to allow Claude to effectively select the right tool/s for the job, and provide the correct paremeters.
+
+Most of these tools pull data directly from the Umami API into Claude Desktop, however get_docs adds in a semantic search step to avoid context window issues with Claude as well as saving on token usage. All of the user journeys for a given event are retrieved using the Umami API and then these are chunked into smaller sections and embedded using an open soruce sentence transformer model from hugging face. Then, based on the question, the most relevant chunks are retrieved and returned to Claude, allowing for analysis of specific actions and behaviours performed by users on the website, something hard to replicate with traditional data visualisation tools. The implementation of this embedding and semantic search is in the `src/analytics_service/embeddings.py` file.
+
+Additoanlly, the get_screenshot and get_html tools use the open source Crawl4AI web crawler to retrieve the HTML source code and screenshot of a given website. The screenshots have to be downsampled to reduce their size to avoid context window issues with Claude. This allows you to provide context to Claude about how the website is structured and how it looks, allowing for more accurate and relevant recomendations on improving site performance. The implementation of the web crawler is in the `src/analytics_service/crawler.py` file.
 
 ## Setup Guide
 

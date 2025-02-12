@@ -119,7 +119,7 @@ def smart_chunk_selection(chunks_per_user, max_total_chunks=100):
 
 def embed_and_store_data(texts: list[str]):
     """
-    Embed the returned data using two-stage chunking and store it in the FAISS vector store.
+    Embed the returned data using two-stage chunking and store it in vector store.
     """
     first_stage_chunks = semantic_chunking(texts)
     
