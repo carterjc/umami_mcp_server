@@ -1,6 +1,5 @@
 import os
 import json
-import logging
 from typing import Any, Sequence
 import sys
 from datetime import datetime
@@ -44,14 +43,6 @@ def convert_date_to_unix(date_str: str, end_of_day: bool = False) -> int:
 # Load environment variables
 load_dotenv()
 
-# Configure logging
-logging.basicConfig(
-    level=logging.DEBUG,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    stream=sys.stderr
-)
-logger = logging.getLogger("analytics-server")
-
 # API configuration
 API_BASE_URL = os.getenv("UMAMI_API_URL")
 API_USERNAME = os.getenv("UMAMI_USERNAME")
@@ -70,6 +61,9 @@ if not client.login(API_USERNAME, API_PASSWORD):
     raise RuntimeError("Failed to login to Umami API")
 if not client.verify_token():
     raise RuntimeError("Failed to verify Umami API token")
+
+# Create server instance
+app = Server("analytics-server")
 
 def get_session_ids(website_id, event_name, start_at, end_at):
     """
@@ -104,8 +98,6 @@ def get_session_ids(website_id, event_name, start_at, end_at):
         else:
             page += 1
     return list(set(ids))
-
-app = Server("analytics-server")
 
 # List of tools and their descriptions for LLM
 @app.list_tools()
@@ -762,13 +754,18 @@ async def call_tool(name: str, arguments: Any) -> Sequence[TextContent | ImageCo
         try:
             screenshot_base64 = await crawler.get_screenshot(arguments["url"])
             
+            if not screenshot_base64:
+                raise RuntimeError("No screenshot data returned")
+                
             return [
                 ImageContent(
                     type="image",
-                    mimeType="image/jpeg",  # Changed to JPEG since we're converting
+                    mimeType="image/jpeg",
                     data=screenshot_base64
                 )
             ]
+        except TimeoutError as e:
+            raise RuntimeError(f"Screenshot timed out: {str(e)}")
         except Exception as e:
             raise RuntimeError(f"Failed to get screenshot: {str(e)}")
     
