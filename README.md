@@ -75,6 +75,8 @@ Additoanlly, the get_screenshot and get_html tools use the open source [Crawl4AI
    Replace `/path/to/analytics_service` with the actual path to your analytics_service directory.
 
    For the UMAMI_API_URL, replace `https://example.com` with the URL of the version of Umami you are using (either self-hosted or hosted on Umami Cloud). 
+   For the UMAMI_USERNAME and UMAMI_PASSWORD, replace `yourUmamiUsername` and `yourUmamiPassword` with your Umami account credentials.
+   For the UMAMI_TEAM_ID, replace `yourUmamiTeamId` with the ID of the team you want to analyse.
 
 2. **Opening Claude Desktop**
 
