@@ -109,7 +109,7 @@ Additoanlly, the get_screenshot and get_html tools use the open source [Crawl4AI
 
   For a more customisable experience, you can talk directly to Claude and specify your own requirements such as what data you want to see on the dashboard and what visualisations you want to use. Additionally you can analyse user journeys to pinpoint specific pain points and add screenshots from your site to give Claude extra context
 
-  The neccesary tools to complete your request will be used by claude automatically, simply make your request in natural language and claude will decide which tools to use. If you want to see a list of all the tools available, you can ask claude to list them for you or click on the hammer icon in the bottom right of the chat window.
+  The necessary tools to complete your request will be used by Claude automatically. Simply make your request in natural language and Claude will decide which tools to use. If you want to see a list of all the tools available, you can ask Claude to list them for you or click on the hammer icon in the bottom right of the chat window.
   
   ![alt text](docs/videos/natural_language.gif)
   
