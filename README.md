@@ -60,7 +60,7 @@ Additoanlly, the get_screenshot and get_html tools use the open source [Crawl4AI
            "--directory",
            "/path/to/analytics_service",
            "run",
-           "analytics_service"
+           "analytics-service"
          ],
          "env": {
           "UMAMI_API_URL": "https://example.com",
