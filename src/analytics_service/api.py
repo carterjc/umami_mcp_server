@@ -24,7 +24,7 @@ class UmamiClient:
         Log in to the Umami API using the provided username and password.
         Returns True if login is successful, False otherwise.
         """
-        login_url = f"{self.base_url}/api/auth/login"
+        login_url = f"{self.base_url}/auth/login"
         payload = {"username": username, "password": password}
         headers = {"Content-Type": "application/json", "Accept": "application/json"}
 
@@ -56,7 +56,7 @@ class UmamiClient:
         """
         Retrieve a list of websites for a given team.
         """
-        url = f"{self.base_url}/api/teams/{team_id}/websites"
+        url = f"{self.base_url}/teams/{team_id}/websites"
         params = {"query": query, "pageSize": page_size}
         try:
             response = self.session.get(url, params=params)
@@ -79,7 +79,7 @@ class UmamiClient:
         """
         Retrieve statistics for a specific website within a time range.
         """
-        url = f"{self.base_url}/api/websites/{website_id}/stats"
+        url = f"{self.base_url}/websites/{website_id}/stats"
         params = {"startAt": start_at, "endAt": end_at}
         try:
             response = self.session.get(url, params=params)
@@ -102,7 +102,7 @@ class UmamiClient:
         """
         Retrieve metrics for a specific website within a time range.
         """
-        url = f"{self.base_url}/api/websites/{website_id}/metrics"
+        url = f"{self.base_url}/websites/{website_id}/metrics"
         params = {"startAt": start_at, "endAt": end_at, "type": type}
         try:
             response = self.session.get(url, params=params)
@@ -146,7 +146,7 @@ class UmamiClient:
         Returns:
             dict or None: The JSON response from the API if successful, None otherwise.
         """
-        url = f"{self.base_url}/api/websites/{website_id}/events"
+        url = f"{self.base_url}/websites/{website_id}/events"
         params = {
             "startAt": start_at,
             "endAt": end_at,
@@ -189,9 +189,7 @@ class UmamiClient:
         Returns:
             dict or None: The JSON response from the API if successful, None otherwise.
         """
-        url = (
-            f"{self.base_url}/api/websites/{website_id}/sessions/{session_id}/activity"
-        )
+        url = f"{self.base_url}/websites/{website_id}/sessions/{session_id}/activity"
         params = {"startAt": start_at, "endAt": end_at}
         try:
             response = self.session.get(url, params=params)
@@ -224,7 +222,7 @@ class UmamiClient:
         Returns:
             dict or None: The JSON response containing pageview data if successful, None otherwise.
         """
-        url = f"{self.base_url}/api/websites/{website_id}/pageviews"
+        url = f"{self.base_url}/websites/{website_id}/pageviews"
         params = {
             "startAt": start_at,
             "endAt": end_at,
@@ -258,7 +256,7 @@ class UmamiClient:
             The response includes:
             - x: number of active visitors at that timestamp
         """
-        url = f"{self.base_url}/api/websites/{website_id}/active"
+        url = f"{self.base_url}/websites/{website_id}/active"
 
         try:
             response = self.session.get(url)
