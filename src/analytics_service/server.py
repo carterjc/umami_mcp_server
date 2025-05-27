@@ -10,7 +10,6 @@ from mcp.server.fastmcp import FastMCP
 
 from analytics_service.utils import convert_date_to_unix
 from analytics_service.api import UmamiClient
-from analytics_service.embeddings import get_chunks
 
 load_dotenv()
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
@@ -410,73 +409,73 @@ async def get_website_metrics(
         return f"Error fetching website metrics: {e}"
 
 
-@mcp.tool()
-async def get_docs(
-    user_question: str,
-    selected_event: str | None,
-    website_id: str,
-    start_at: str,
-    end_at: str,
-) -> str:
-    """Performs the document selection and retrieval part of the RAG pipeline for user journeys from umami tracking data.
-    User journey data is retrieved for all users who performed the selected event. Then the data is then chunked into documents and embedded into a vector database.
-    Similarity search based of the users question is then used to retrieve the most relevant documents. These documents are returned for use in answering the user's question.
+# @mcp.tool()
+# async def get_docs(
+#     user_question: str,
+#     selected_event: str | None,
+#     website_id: str,
+#     start_at: str,
+#     end_at: str,
+# ) -> str:
+#     """Performs the document selection and retrieval part of the RAG pipeline for user journeys from umami tracking data.
+#     User journey data is retrieved for all users who performed the selected event. Then the data is then chunked into documents and embedded into a vector database.
+#     Similarity search based of the users question is then used to retrieve the most relevant documents. These documents are returned for use in answering the user's question.
 
-    Note: If no results are returned, do not immediately assume there is no data - verify the unix timestamps are correct and ask the user for specific date ranges if not provided.
+#     Note: If no results are returned, do not immediately assume there is no data - verify the unix timestamps are correct and ask the user for specific date ranges if not provided.
 
-    Args
-        - user_question (string): The user's question to be used to retrieve relevant documents. This does not have to be word for word the same as the question the user asked, but should allow for the most relevant documents to be retrieved.
-        - selected_event (string): The event to filter the session ids by. Here are the possible events:
-            - product_details_viewed
-            - product_clicked
-            - user_sign_in
-            - product_added_to_cart
-            - checkout_started
-            - language_changed
-            - checkout_completed
-            If not filtering by an event, set this to None.
-        - website_id (string): The ID of the website where the user journey is located
-        - start_at (string): Start date for time range of data to retrieve. Format: YYYY-MM-DD or YYYY-MM-DD HH:MM:SS
-            Examples:
-            - 2024-03-01
-            - 2024-03-01 00:00:00
-            - 2024-01-31
-            Note: If time is not provided, 00:00:00 will be used
-        - end_at (string): End date for time range of data to retrieve. Format: YYYY-MM-DD or YYYY-MM-DD HH:MM:SS
-            Examples:
-            - 2024-03-01
-            - 2024-03-01 23:59:59
-            - 2024-01-31
-            Note: If time is not provided, 23:59:59.999 will be used
-    """
-    try:
-        # convert dates
-        start_ts = convert_date_to_unix(start_at, end_of_day=False)
-        end_ts = convert_date_to_unix(end_at, end_of_day=True)
-        # fetch sessions
-        sessions = _get_session_ids(
-            website_id,
-            None if selected_event in (None, "None") else selected_event,
-            start_ts,
-            end_ts,
-        )
-        # gather activity json strings
-        activities = []
-        for sid in sessions:
-            act = client.get_user_activity(
-                website_id=website_id,
-                session_id=sid,
-                start_at=start_ts,
-                end_at=end_ts,
-            )
-            if act:
-                activities.append(json.dumps(act, indent=2))
-        # chunk & embed
-        docs = await get_chunks(activities, user_question)
-        return "\n\n".join(d.page_content for d in docs)
-    except Exception as e:
-        logger.error("get_docs error: %s", e)
-        return f"Error building docs: {e}"
+#     Args
+#         - user_question (string): The user's question to be used to retrieve relevant documents. This does not have to be word for word the same as the question the user asked, but should allow for the most relevant documents to be retrieved.
+#         - selected_event (string): The event to filter the session ids by. Here are the possible events:
+#             - product_details_viewed
+#             - product_clicked
+#             - user_sign_in
+#             - product_added_to_cart
+#             - checkout_started
+#             - language_changed
+#             - checkout_completed
+#             If not filtering by an event, set this to None.
+#         - website_id (string): The ID of the website where the user journey is located
+#         - start_at (string): Start date for time range of data to retrieve. Format: YYYY-MM-DD or YYYY-MM-DD HH:MM:SS
+#             Examples:
+#             - 2024-03-01
+#             - 2024-03-01 00:00:00
+#             - 2024-01-31
+#             Note: If time is not provided, 00:00:00 will be used
+#         - end_at (string): End date for time range of data to retrieve. Format: YYYY-MM-DD or YYYY-MM-DD HH:MM:SS
+#             Examples:
+#             - 2024-03-01
+#             - 2024-03-01 23:59:59
+#             - 2024-01-31
+#             Note: If time is not provided, 23:59:59.999 will be used
+#     """
+#     try:
+#         # convert dates
+#         start_ts = convert_date_to_unix(start_at, end_of_day=False)
+#         end_ts = convert_date_to_unix(end_at, end_of_day=True)
+#         # fetch sessions
+#         sessions = _get_session_ids(
+#             website_id,
+#             None if selected_event in (None, "None") else selected_event,
+#             start_ts,
+#             end_ts,
+#         )
+#         # gather activity json strings
+#         activities = []
+#         for sid in sessions:
+#             act = client.get_user_activity(
+#                 website_id=website_id,
+#                 session_id=sid,
+#                 start_at=start_ts,
+#                 end_at=end_ts,
+#             )
+#             if act:
+#                 activities.append(json.dumps(act, indent=2))
+#         # chunk & embed
+#         docs = await get_chunks(activities, user_question)
+#         return "\n\n".join(d.page_content for d in docs)
+#     except Exception as e:
+#         logger.error("get_docs error: %s", e)
+#         return f"Error building docs: {e}"
 
 
 @mcp.tool()
