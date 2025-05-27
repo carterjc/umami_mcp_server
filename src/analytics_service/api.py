@@ -50,13 +50,11 @@ class UmamiClient:
             logger.error(f"An error occurred during login: {err}")
             return False
 
-    def get_websites(
-        self, team_id: str, query: str = "", page_size: int = 150
-    ) -> Optional[dict]:
+    def get_websites(self, query: str = "", page_size: int = 150) -> Optional[dict]:
         """
         Retrieve a list of websites for a given team.
         """
-        url = f"{self.base_url}/teams/{team_id}/websites"
+        url = f"{self.base_url}/websites"
         params = {"query": query, "pageSize": page_size}
         try:
             response = self.session.get(url, params=params)

@@ -195,7 +195,7 @@ Ensure the dashboard is visually appealing and easy to understand."""
 
 
 @mcp.tool()
-async def get_websites(team_id: str | None = None) -> str:
+async def get_websites() -> str:
     """Retrieve a list of the websites present in the tracking database.
 
     This tool does not require any input.
@@ -213,11 +213,8 @@ async def get_websites(team_id: str | None = None) -> str:
         - deletedAt: The date and time when the website was deleted
         - createUser: The unique identifier of the user that created the website, and their username
     """
-    tid = team_id or TEAM_ID
     try:
-        if tid is None:
-            raise Exception("Invalid team id")
-        sites = client.get_websites(tid)
+        sites = client.get_websites()
         return json.dumps(sites, indent=2)
     except Exception as e:
         logger.error("get_websites error: %s", e)
